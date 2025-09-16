@@ -1,6 +1,8 @@
 package org.example.expert.support;
 
 import org.example.expert.config.JwtUtil;
+import org.example.expert.domain.comment.entity.Comment;
+import org.example.expert.domain.comment.repository.CommentRepository;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.entity.User;
@@ -27,9 +29,12 @@ public abstract class IntegrationTestSupport {
 
 	@Autowired
 	protected UserRepository userRepository;
-	
+
 	@Autowired
 	protected TodoRepository todoRepository;
+
+	@Autowired
+	protected CommentRepository commentRepository;
 
 	protected User saveUser(String email, String password, String nickname, UserRole userRole){
 		return  userRepository.save(new User(email, password, nickname, userRole));
@@ -37,6 +42,10 @@ public abstract class IntegrationTestSupport {
 
 	protected Todo saveTodo(String title, String contents, String weather, User user){
 		return todoRepository.save(new Todo(title, contents, weather, user));
+	}
+
+	protected Comment saveComment(String contents, User user, Todo todo){
+		return commentRepository.save(new Comment(contents, user, todo));
 	}
 
 	protected RequestPostProcessor addHeatherBearerToken(User user){
