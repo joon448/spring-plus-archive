@@ -1,6 +1,6 @@
 package org.example.expert.domain.comment.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
@@ -76,14 +76,12 @@ public class CommentServiceTest {
 		Todo todo = new Todo("title", "contents", "Sunny", userEntity);
 		ReflectionTestUtils.setField(todo, "id", 1L);
 
-		given(todoRepository.findById(eq(todo.getId()))).willThrow(new InvalidRequestException("Todo not found"));
+		given(todoRepository.findById(eq(todo.getId()))).willReturn(Optional.empty());
 
-		//when
-		InvalidRequestException exception = assertThrows(InvalidRequestException.class,
-			() -> commentService.saveComment(authUser, todo.getId(), commentSaveRequest));
-
-		// then
-		assertEquals("Todo not found", exception.getMessage());
+		//when & then
+		assertThatThrownBy(() -> commentService.saveComment(authUser, todo.getId(), commentSaveRequest))
+			.isInstanceOf(InvalidRequestException.class)
+			.hasMessage("Todo not found");
 	}
 
 	@Test

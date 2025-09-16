@@ -132,14 +132,10 @@ public class TodoServiceTest {
 		Long todoId = 1L;
 		ReflectionTestUtils.setField(todo, "id", todoId);
 
-		given(todoRepository.findByIdWithUser(todoId)).willThrow(new InvalidRequestException("Todo not found"));
-
-		// when
-		InvalidRequestException exception = assertThrows(InvalidRequestException.class,
-			() -> todoService.getTodo(todoId));
-
-		// then
-		assertEquals("Todo not found", exception.getMessage());
+		// when & then
+		assertThatThrownBy(() -> todoService.getTodo(todoId))
+			.isInstanceOf(InvalidRequestException.class)
+			.hasMessage("Todo not found");
 	}
 
 	@Test

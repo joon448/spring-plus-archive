@@ -69,12 +69,10 @@ public class AuthServiceTest {
 		SignupRequest signupRequest = new SignupRequest("user@test.com", "pw" ,"user", UserRole.USER.name());
 		given(userRepository.existsByEmail(eq(signupRequest.getEmail()))).willReturn(true);
 
-		//when
-		InvalidRequestException exception = assertThrows(InvalidRequestException.class,
-			() -> authService.signup(signupRequest));
-
-		//then
-		assertEquals("이미 존재하는 이메일입니다.", exception.getMessage());
+		//when & then
+		assertThatThrownBy(() -> authService.signup(signupRequest))
+			.isInstanceOf(InvalidRequestException.class)
+			.hasMessage("이미 존재하는 이메일입니다.");
 	}
 
 	@Test
@@ -109,12 +107,10 @@ public class AuthServiceTest {
 
 		given(userRepository.findByEmail(eq(signinRequest.getEmail()))).willReturn(Optional.empty());
 
-		//when
-		InvalidRequestException exception = assertThrows(InvalidRequestException.class,
-			() -> authService.signin(signinRequest));
-
-		//then
-		assertEquals("가입되지 않은 유저입니다.", exception.getMessage());
+		//when & then
+		assertThatThrownBy(() -> authService.signin(signinRequest))
+			.isInstanceOf(InvalidRequestException.class)
+			.hasMessage("가입되지 않은 유저입니다.");
 	}
 
 	@Test
@@ -128,12 +124,9 @@ public class AuthServiceTest {
 
 		given(passwordEncoder.matches(eq(signinRequest.getPassword()), eq(user.getPassword()))).willReturn(false);
 
-		//when
-		AuthException exception = assertThrows(AuthException.class,
-			() -> authService.signin(signinRequest));
-
-		//then
-		assertEquals("잘못된 비밀번호입니다.", exception.getMessage());
-
+		//when & then
+		assertThatThrownBy(() -> authService.signin(signinRequest))
+			.isInstanceOf(AuthException.class)
+			.hasMessage("잘못된 비밀번호입니다.");
 	}
 }
