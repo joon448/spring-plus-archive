@@ -3,6 +3,8 @@ package org.example.expert.support;
 import org.example.expert.config.JwtUtil;
 import org.example.expert.domain.comment.entity.Comment;
 import org.example.expert.domain.comment.repository.CommentRepository;
+import org.example.expert.domain.manager.entity.Manager;
+import org.example.expert.domain.manager.repository.ManagerRepository;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.entity.User;
@@ -15,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,6 +40,12 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected CommentRepository commentRepository;
 
+	@Autowired
+	protected ManagerRepository managerRepository;
+
+	@Autowired
+	protected ObjectMapper objectMapper;
+
 	protected User saveUser(String email, String password, String nickname, UserRole userRole){
 		return  userRepository.save(new User(email, password, nickname, userRole));
 	}
@@ -46,6 +56,10 @@ public abstract class IntegrationTestSupport {
 
 	protected Comment saveComment(String contents, User user, Todo todo){
 		return commentRepository.save(new Comment(contents, user, todo));
+	}
+
+	protected Manager saveManager(User user, Todo todo){
+		return managerRepository.save(new Manager(user, todo));
 	}
 
 	protected RequestPostProcessor addHeatherBearerToken(User user){
