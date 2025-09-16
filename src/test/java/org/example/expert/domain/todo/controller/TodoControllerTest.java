@@ -21,7 +21,6 @@ import org.example.expert.domain.user.enums.UserRole;
 import org.example.expert.support.ControllerTestSupport;
 import org.example.expert.support.WithMockAuthUser;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -29,18 +28,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 
 @WebMvcTest(TodoController.class)
 class TodoControllerTest extends ControllerTestSupport {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
 
     @MockBean
     private TodoService todoService;
@@ -50,8 +41,7 @@ class TodoControllerTest extends ControllerTestSupport {
     void todo_생성에_성공한다() throws Exception {
         // given
         long todoId = 1L;
-        AuthUser authUser = (AuthUser) org.springframework.security.test.context.TestSecurityContextHolder
-            .getContext().getAuthentication().getPrincipal();
+        AuthUser authUser = (AuthUser) TestSecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = User.fromAuthUser(authUser);
         TodoSaveRequest todoSaveRequest = new TodoSaveRequest("title", "contents");
         UserResponse userResponse = new UserResponse(user.getId(), user.getEmail());
