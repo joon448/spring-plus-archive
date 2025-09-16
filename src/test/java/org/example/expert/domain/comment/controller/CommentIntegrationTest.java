@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import org.example.expert.domain.comment.dto.request.CommentSaveRequest;
 import org.example.expert.domain.comment.entity.Comment;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.user.entity.User;
@@ -22,16 +23,12 @@ public class CommentIntegrationTest extends IntegrationTestSupport {
 		Todo todo  = saveTodo("title", "contents", "Sunny", user);
 		Long todoId = todo.getId();
 
-		String body = """
-			{
-			  	"contents": "contents"
-			}
-			""";
+		CommentSaveRequest body = new CommentSaveRequest("contents");
 
 		// when & then
 		mockMvc.perform(post("/todos/{todoId}/comments", todoId)
 			.contentType(MediaType.APPLICATION_JSON)
-			.content(body)
+			.content(objectMapper.writeValueAsString(body))
 			.with(addHeatherBearerToken(user))
 			.with(csrf()))
 			.andExpect(status().isOk())

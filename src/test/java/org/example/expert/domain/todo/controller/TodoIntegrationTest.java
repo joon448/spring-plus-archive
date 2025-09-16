@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.example.expert.client.WeatherClient;
+import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
@@ -26,17 +27,12 @@ public class TodoIntegrationTest extends IntegrationTestSupport {
 		// given
 		User user = saveUser("user@test.com", "pw", "user", UserRole.USER);
 
-		String body = """
-			{
-				"title": "title",
-			  	"contents": "contents"
-			}
-			""";
+		TodoSaveRequest body = new TodoSaveRequest("title", "contents");
 
 		// when & then
 		mockMvc.perform(post("/todos")
 			.contentType(MediaType.APPLICATION_JSON)
-			.content(body)
+			.content(objectMapper.writeValueAsString(body))
 			.with(addHeatherBearerToken(user))
 			.with(csrf()))
 			.andExpect(status().isOk())
