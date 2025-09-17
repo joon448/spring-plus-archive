@@ -1,5 +1,5 @@
 # SPRING PLUS
-# 0. 프로젝트 요약
+## 0. 프로젝트 요약
 
 * JWT 기반 인증을 사용하는 Todo/코멘트/담당자 관리 API
 
@@ -11,11 +11,11 @@
 
 ---
 
-# 1. API 명세서
+## 1. API 명세서
 
-## 1.1 인증 (Auth)
+### 1.1 인증 (Auth)
 
-### 회원가입
+#### 회원가입
 
 * **POST** `/auth/signup`
 * **Request**
@@ -35,7 +35,7 @@
 { "bearerToken": "Bearer xxx.yyy.zzz" }
 ```
 
-### 로그인
+#### 로그인
 
 * **POST** `/auth/signin`
 * **Request**
@@ -54,9 +54,9 @@
 
 ---
 
-## 1.2 Todo
+### 1.2 Todo
 
-### 단건 조회
+#### 단건 조회
 
 * **GET** `/todos/{todoId}`
 * **Response 200**
@@ -73,7 +73,7 @@
 }
 ```
 
-### 목록 조회
+#### 목록 조회
 
 * **GET** `/todos?page=1&size=10&start=YYYY-MM-DD&end=YYYY-MM-DD&weather=Sunny`
 
@@ -86,7 +86,7 @@
 }
 ```
 
-### 생성
+#### 생성
 
 * **POST** `/todos`
 * **Request**
@@ -107,11 +107,24 @@
 }
 ```
 
+#### 목록 검색
+
+* **GET** `/search/todos?page=1&size=10&title=Title&start=YYYY-MM-DD&end=YYYY-MM-DD&nickname=Nick`
+
+* **Response 200**
+
+```json
+{
+  "content": [ TodoSearchResponse[] ],
+  "page": { "size": 10, "number": 0, "totalElements": 12, "totalPages": 2 }
+}
+```
+
 ---
 
-## 1.3 Comment
+### 1.3 Comment
 
-### 생성
+#### 생성
 
 * **POST** `/todos/{todoId}/comments`
 * **Request**
@@ -130,7 +143,7 @@
 }
 ```
 
-### 조회
+#### 조회
 
 * **GET** `/todos/{todoId}/comments`
 * **Response 200**
@@ -144,11 +157,11 @@
 
 ---
 
-## 1.4 Manager
+### 1.4 Manager
 
 > Todo 생성 시 작성자가 Manager로 자동 등록됨
 
-### 등록
+#### 등록
 
 * **POST** `/todos/{todoId}/managers`
 * **Request**
@@ -166,7 +179,7 @@
 }
 ```
 
-### 목록 조회
+#### 목록 조회
 
 * **GET** `/todos/{todoId}/managers`
 * **Response 200**
@@ -178,16 +191,16 @@
 ]
 ```
 
-### 삭제
+#### 삭제
 
 * **DELETE** `/todos/{todoId}/managers/{managerId}`
 * **Response 200**
 
 ---
 
-## 1.5 User
+### 1.5 User
 
-### 단건 조회
+#### 단건 조회
 
 * **GET** `/users/{userId}`
 * **Response 200**
@@ -199,7 +212,7 @@
 }
 ```
 
-### 비밀번호 변경
+#### 비밀번호 변경
 
 * **PUT** `/users`
 * **Request**
@@ -213,7 +226,7 @@
 * **Response 200**
 
 
-### 유저 권한 변경 (Admin)
+#### 유저 권한 변경 (Admin)
 
 * **PATCH** `/admin/users/{userId}`
 * **Request**
@@ -229,9 +242,9 @@
 
 ---
 
-# 2. 실행 방법 (application.yml)
+## 2. 실행 방법 (application.yml)
 
-## 2.1 `src/main/resources/application.yml` (예시)
+### 2.1 `src/main/resources/application.yml` (예시)
 
 ```yaml
 spring:
@@ -252,7 +265,7 @@ jwt:
     key: [your-jwt-key]
 ```
 
-## 2.2 `src/test/resources/application-test.yml` (예시)
+### 2.2 `src/test/resources/application-test.yml` (예시)
 
 ```yaml
 spring:
@@ -271,9 +284,9 @@ jwt:
 
 ---
 
-# 3. 트러블 슈팅
+## 3. 트러블 슈팅
 
-### Level 0.
+#### Level 0.
 
 ```jsx
 Could not resolve placeholder 'jwt.secret.key' in value "${jwt.secret.key}"
@@ -282,7 +295,7 @@ Could not resolve placeholder 'jwt.secret.key' in value "${jwt.secret.key}"
 - application.yml 생성
 - DB 연결 설정
 
-### Level 1.
+#### Level 1.
 
 ```jsx
 Connection is read-only. Queries leading to data modification are not allowed
@@ -291,7 +304,7 @@ Connection is read-only. Queries leading to data modification are not allowed
 - 원인: Todo Service 전체에 `@Transactional(readOnly = true)` 작성되어 있음
 - 해결: 각 메서드마다 분리하고, Save 메서드에는 `@Transactional`을 붙임
 
-### Level 2.
+#### Level 2.
 
 User에 Nickname 필드 추가 필요
 
@@ -305,7 +318,7 @@ User에 Nickname 필드 추가 필요
     - JwtFilter에 nickname 세팅 부분 추가
     - AuthUserArgumentResolver에 nickname 받아오는 부분 추가
 
-### Level 3.
+#### Level 3.
 
 weather 검색 기능 추가
 
@@ -339,7 +352,7 @@ LocalDateTime endTimeExclusive = end==null ? null : end.plusDays(1).atStartOfDay
 	Page<Todo> findByConditionOrderByModifiedAtDesc(@Param("weather") String weather, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, Pageable pageable);
 ```
 
-### Level 4.
+#### Level 4.
 
 ```jsx
 mockMvc.perform(get("/todos/{todoId}", todoId))
@@ -352,7 +365,7 @@ mockMvc.perform(get("/todos/{todoId}", todoId))
 - 기존 테스트 코드 expected status : 200 OK
 - 테스트 코드 의도 status: 400 Bad Request
 
-### Level 5.
+#### Level 5.
 
 ```jsx
 //수정 전
@@ -364,7 +377,7 @@ mockMvc.perform(get("/todos/{todoId}", todoId))
 
 - changeUserRole 메서드 실행 전 동작으로 변경
 
-### Level 6.
+#### Level 6.
 
 Cascade
 
@@ -394,7 +407,7 @@ private List<Manager> managers = new ArrayList<>();
 
 - 부모 저장 시 자식 같이 저장 → `CascadeType.PERSIST`
 
-### Level 7.
+#### Level 7.
 
 N+1 문제 발생
 
@@ -404,7 +417,7 @@ N+1 문제 발생
 
 - JOIN → JOIN FETCH 변경
 
-### Level 8.
+#### Level 8.
 
 QueryDSL
 
@@ -482,14 +495,14 @@ QueryDSL
         ```
 
 
-### Level 9.
+#### Level 9.
 
 - Filter + ArgumentResolver 관련 파일 삭제
 - Spring Security 적용 (JwtAuthenticationFilter, JwtAuthenticationToken, SecurityConfig)
 - UserRole 수정 (ROLE_ 추가한 Authority 생성)
 - Controller 적용 부분 수정 (@Auth → @AuthenticationPrincipal)
 
-### Level 10.
+#### Level 10.
 
 - TodoSearchResponse Dto 추가
 
@@ -577,16 +590,29 @@ QueryDSL
 - Dto Projection을 적용하기 때문에 N+1 문제 발생하지 않음
 - 동적 조건 따로 분리하여 가독성 & 재사용성 높임
 
-### Level 11.
+#### Level 11.
 
 - Log 엔티티 및 레포지토리 생성
 - saveManager 메서드 안에서 logSaveManager 메서드 실행
 - propagation 속성 REQUIRES_NEW 적용하여 saveManager 오류 발생 시에도 로그 저장 롤백 제외
 
 
+### 그 외 문제 해결
+
+* UserRole 관련 오류
+  * authorities 설정에 userRole.name() 사용 (USER, ADMIN)
+  	* userRole.getUserRole() 로 변경 (ROLE_USER, ROLE_ADMIN)
+  * 스키마 컬럼 생성 시 ROLE_USER, ROLE_ADMIN으로 생성되어 data truncated 오류 발생
+    * table drop 후 재생성
+* Controller test 시 제대로 응답이 오지 않음
+  * JwtAuthenticationFilter 대신 JwtUtil를 모킹하는 실수
+  * filter 단에서 200 및 빈 응답이 전달되었다
+* Auth Controller Test 시 401 오류가 발생함
+  * @Import(SecurityConfig.class)로 해결
+
 ---
 
-# 4. 테스트
+## 4. 테스트
 
 * **단위 테스트 (Service)**: Mockito로 Repository/외부 의존 목킹, 성공/실패 분기 검증
 * **컨트롤러 슬라이스 (@WebMvcTest)**
@@ -599,5 +625,7 @@ QueryDSL
 
     * `JwtUtil.createToken(...)`으로 실제 토큰 생성 → `Authorization` 헤더
     * `@Transactional`로 데이터 격리
+      
+<img width="650" height="300" alt="image" src="https://github.com/user-attachments/assets/3e8251cb-de28-4907-8f2b-2f5cd6d5eaed" />
 
 ---
