@@ -44,7 +44,7 @@ public class SecurityConfig {
 			.rememberMe(AbstractHttpConfigurer::disable)
 
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(request -> request.getRequestURI().startsWith("/auth")).permitAll()
+				.requestMatchers("/auth/**", "/actuator/health/**").permitAll()
 				.requestMatchers("/test").hasAuthority(UserRole.Authority.ADMIN) // `/test`는 ADMIN만 허용
 				.requestMatchers(request -> request.getRequestURI().startsWith("/admin")).hasAuthority(UserRole.Authority.ADMIN) // `/admin/**`는 ADMIN만 허용
 				.requestMatchers("/open").permitAll() // `/open`은 아무나 접근 가능
