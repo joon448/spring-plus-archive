@@ -11,9 +11,46 @@
 
 ---
 
-## 1. API 명세서
+## 1. AWS 배포
 
-### 1.1 인증 (Auth)
+### 1.1 Health Check API
+
+* `curl -i http://43.200.65.248:8080/actuator/health`
+* Success Response
+  ```json
+  HTTP/1.1 200
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 0
+  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+  X-Frame-Options: DENY
+  Content-Type: application/vnd.spring-boot.actuator.v3+json
+  Transfer-Encoding: chunked
+  Date: Thu, 18 Sep 2025 10:45:06 GMT
+  
+  {"status":"UP","groups":["liveness","readiness"]}
+  ```
+
+* Fail Response
+  ```json
+  HTTP/1.1 403
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 0
+  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+  X-Frame-Options: DENY
+  Content-Length: 0
+  Date: Thu, 18 Sep 2025 10:16:42 GMT
+  ```
+
+
+---
+
+## 2. API 명세서
+
+### 2.1 인증 (Auth)
 
 #### 회원가입
 
@@ -54,7 +91,7 @@
 
 ---
 
-### 1.2 Todo
+### 2.2 Todo
 
 #### 단건 조회
 
@@ -122,7 +159,7 @@
 
 ---
 
-### 1.3 Comment
+### 2.3 Comment
 
 #### 생성
 
@@ -157,7 +194,7 @@
 
 ---
 
-### 1.4 Manager
+### 2.4 Manager
 
 > Todo 생성 시 작성자가 Manager로 자동 등록됨
 
@@ -198,7 +235,7 @@
 
 ---
 
-### 1.5 User
+### 2.5 User
 
 #### 단건 조회
 
@@ -242,9 +279,9 @@
 
 ---
 
-## 2. 실행 방법 (application.yml)
+## 3. Local 실행 방법 (application.yml)
 
-### 2.1 `src/main/resources/application.yml` (예시)
+### 3.1 `src/main/resources/application.yml` (예시)
 
 ```yaml
 spring:
@@ -265,7 +302,7 @@ jwt:
     key: [your-jwt-key]
 ```
 
-### 2.2 `src/test/resources/application-test.yml` (예시)
+### 3.2 `src/test/resources/application-test.yml` (예시)
 
 ```yaml
 spring:
@@ -284,7 +321,7 @@ jwt:
 
 ---
 
-## 3. 트러블 슈팅
+## 4. 트러블 슈팅
 
 #### Level 0.
 
@@ -612,7 +649,7 @@ QueryDSL
 
 ---
 
-## 4. 테스트
+## 5. 테스트
 
 * **단위 테스트 (Service)**: Mockito로 Repository/외부 의존 목킹, 성공/실패 분기 검증
 * **컨트롤러 슬라이스 (@WebMvcTest)**
