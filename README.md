@@ -359,9 +359,33 @@
 
 <img width="405" height="290" alt="post_todo" src="https://github.com/user-attachments/assets/1488689b-8da4-4545-a4ae-109b2340d194" />
 
-#### 프로필 이미지 관리 (bearer token 필요)
+#### 프로필 이미지 업로드 (bearer token 필요)
 
+<img width="563" height="59" alt="image" src="https://github.com/user-attachments/assets/6a8955ed-9b08-4c41-be33-b9d7770b3430" />
 
+- S3에 업로드된 것을 확인할 수 있음
+
+<img width="1061" height="354" alt="image" src="https://github.com/user-attachments/assets/f6570d7d-eeb7-41fa-9108-daf1c5e0ccbd" />
+
+#### 프로필 이미지 조회 (bearer token 필요)
+
+<img width="527" height="425" alt="image" src="https://github.com/user-attachments/assets/11177ef7-4ee1-4e09-a44d-feed29232145" />
+
+- expiresIn(기본 600초)동안 일시적으로 조회 가능한 presignedUrl를 반환
+
+<img width="559" height="402" alt="image" src="https://github.com/user-attachments/assets/c0ec5082-adf8-4451-867c-e55502ebfef7" />
+
+- 600초 이후 접속 시 접근 실패
+
+<img width="557" height="409" alt="image" src="https://github.com/user-attachments/assets/081e4589-741b-4734-a0a3-f5fffd067d2f" />
+
+#### 프로필 이미지 삭제 (bearer token 필요)
+
+<img width="551" height="58" alt="image" src="https://github.com/user-attachments/assets/273d749a-6e43-43da-af3e-0e98dadd2db4" />
+
+- S3에서 삭제된 것을 확인할 수 있음
+
+<img width="1072" height="334" alt="image" src="https://github.com/user-attachments/assets/1b8ef793-364a-4bfc-98c9-132fe8b69752" />
 
 ---
 
@@ -759,7 +783,47 @@ QueryDSL
 
 #### 🟡 Level 12.
 
-- AWS 배포 (EC2, RDS, S3)
+**AWS 배포**
+- EC2, RDS, S3의 역할
+  	- **EC2**: 서버 역할. 스프링 앱이 실행되는 컴퓨팅
+    	- 클라이언트 요청을 받고, 비즈니스 로직 처리
+    	- RDS에 데이터 요청, 파일은 S3에 저장/조회
+    	- IAM Role로 S3 접근 권한을 받음
+    	- 퍼블릭 서브넷 + Elastic IP 붙이면 외부에서 접속 가능
+	- **RDS**: 데이터베이스 역할
+    	- 계정/비밀번호로 연결
+    	- EC2에서만 접속되도록 보안그룹 제한(외부 직접 차단)
+    	- 보통 프라이빗 서브넷에 둬서 인터넷에 노출 안 함
+	- **S3**: 파일 저장소
+    	- 이미지/첨부파일 같은 객체 보관
+    	- 기본은 Public 차단, EC2가 IAM Role로 접근
+- EC2, RDS
+  1) EC2 ssh 접속 및 Java 17 설치
+  2) 환경 변수 파일 생성 및 관리
+  3) 외부 설정 파일 (application-prod.yml) 생성
+  4) systemd 서비스 유닛 생성
+  5) 로컬 프로젝트에서 JAR 배포 및 EC2로 복사
+  6) 서비스 시작
+- S3
+  1) S3 버킷 생성
+  2) EC2 IAM Role 권한 설정
+  3) s3 의존성 추가 및 설정 추가
+  4) ProfileImage 관련 기능 추가
+- 문제: Jar 배포 시 아래와 같은 오류 발생
+  ```bash
+  $ ./gradlew bootJar
+  Exception in thread "main" java.lang.RuntimeException: Wrapper properties file 'C:\Users\82109\Desktop\sparta\spring\spring-plus\gradle\wrapper\gradle-wrapper.properties' does not exist.
+        at org.gradle.wrapper.GradleWrapperMain.main(SourceFile:74)
+  ```
+  해결: gradlew 재생성하여 해결
+  ```bash
+  	irm get.scoop.sh -outfile 'install.ps1'
+	.\install.ps1 -RunAsAdmin
+	scoop install gradle
+	gradle -v
+	#프로젝트 루트에서
+	gradle wrapper --gradle-version 8.7
+  ```
 
 #### 🟡 Level 13.
 
@@ -770,10 +834,10 @@ QueryDSL
 
 	**실험**
   
-	* 각 5회 반복
-	1. 기존 조회 (index 없음)
-	2. nickname index 적용
-	3. (nickname, id) index 적용 (커버링 인덱스)
+* 각 5회 반복
+	* 기존 조회 (index 없음)
+	* nickname index 적용
+	* (nickname, id) index 적용 (커버링 인덱스)
 
 
 	**실험 결과**
@@ -787,7 +851,7 @@ QueryDSL
 	| **(Nickname, Id) Index** | 5 | **2594.0** | 2419.0 | 525.5  | 1912 | 3135 |
 
 
-	3. (Nickname, Id) 커버링 인덱스를 사용했을 때 조회 속도가 가장 빠른 것을 확인할 수 있음
+	* (Nickname, Id) 커버링 인덱스를 사용했을 때 조회 속도가 가장 빠른 것을 확인할 수 있음
 
 
 ### 🟣 그 외 문제 해결
