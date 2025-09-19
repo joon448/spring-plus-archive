@@ -49,7 +49,7 @@ public class ProfileImageController {
 		return ResponseEntity.ok(profileImageService.getDownloadUrl(userId, ttl));
 	}
 
-	@DeleteMapping("{userId}/profile-image")
+	@DeleteMapping("/{userId}/profile-image")
 	public void deleteProfileImage(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable long userId
