@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -27,5 +29,16 @@ public class AdminAccessLoggingAspect {
 
         log.info("Admin Access Log - User ID: {}, Request Time: {}, Request URL: {}, Method: {}",
                 userId, requestTime, requestUrl, joinPoint.getSignature().getName());
+    }
+
+    @Around("execution(* org.example.expert.domain.user.controller.UserController.searchUsers(..))")
+    public void measureAroundSearchUsers(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        try {
+            joinPoint.proceed();
+        } finally {
+            long end = System.currentTimeMillis();
+            log.info("Time Measure Log [ searchUsers() ] - Time taken: {} ms", end - start);
+        }
     }
 }
