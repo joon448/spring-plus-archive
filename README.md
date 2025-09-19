@@ -11,13 +11,13 @@
 
 ---
 
-## 1. AWS 배포
+## 1. API 명세서
 
-### 1.1 Health Check API
+### 1.0 Health Check API
 
-* `curl -i http://43.200.65.248:8080/actuator/health`
+* **GET** `/actuator/health`
 * Success Response
-  ```json
+  ```bash
   HTTP/1.1 200
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 0
@@ -33,7 +33,7 @@
   ```
 
 * Fail Response
-  ```json
+  ```bash
   HTTP/1.1 403
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 0
@@ -45,12 +45,7 @@
   Date: Thu, 18 Sep 2025 10:16:42 GMT
   ```
 
-
----
-
-## 2. API 명세서
-
-### 2.1 인증 (Auth)
+### 1.1 인증 (Auth)
 
 #### 회원가입
 
@@ -91,7 +86,7 @@
 
 ---
 
-### 2.2 Todo
+### 1.2 Todo
 
 #### 단건 조회
 
@@ -146,7 +141,7 @@
 
 #### 목록 검색
 
-* **GET** `/search/todos?page=1&size=10&title=Title&start=YYYY-MM-DD&end=YYYY-MM-DD&nickname=Nick`
+* **GET** `/todos/search?page=1&size=10&title=Title&start=YYYY-MM-DD&end=YYYY-MM-DD&nickname=Nick`
 
 * **Response 200**
 
@@ -159,7 +154,7 @@
 
 ---
 
-### 2.3 Comment
+### 1.3 Comment
 
 #### 생성
 
@@ -194,7 +189,7 @@
 
 ---
 
-### 2.4 Manager
+### 1.4 Manager
 
 > Todo 생성 시 작성자가 Manager로 자동 등록됨
 
@@ -235,7 +230,7 @@
 
 ---
 
-### 2.5 User
+### 1.5 User
 
 #### 단건 조회
 
@@ -263,6 +258,18 @@
 * **Response 200**
 
 
+#### 닉네임 기준 목록 조회
+
+* **GET** `/users/search?nickname=hello`
+* **Response 200**
+```json
+[
+  { "id": 10, "nickname": "hello" },
+  { "id": 22, "nickname": "hello" }
+]
+```
+
+
 #### 유저 권한 변경 (Admin)
 
 * **PATCH** `/admin/users/{userId}`
@@ -275,6 +282,85 @@
 ```
 * **Response 200**
 
+### 1.6 유저 프로필 이미지 관리
+
+#### 프로필 이미지 등록
+
+* **POST** `/users/{userId}/profile-image`
+* **Request**
+```json
+"file=@/mnt/c/users/82109/desktop/sparta/profile_123.jpg;type=image/jpg"
+```
+* **Response**
+```json
+{
+	"id":1,
+	"key":"S3-upload-address-key"
+}
+```
+
+#### 프로필 이미지 조회
+
+* **GET** `/users/{userId}/profile-image`
+* **Response**
+```json
+{
+	"url":"download-presigned-url",
+	"expiresIn":600
+}
+```
+
+#### 프로필 이미지 삭제
+
+* **DELETE** `/users/{userId}/profile-image`
+
+---
+
+## 2. AWS 배포
+
+### 2.1 Settings
+
+#### EC2
+<img width="1937" height="1165" alt="ec2-instance" src="https://github.com/user-attachments/assets/47e52778-939f-41af-a5e4-8d70ada1536f" />
+<img width="1937" height="1247" alt="ec2-security" src="https://github.com/user-attachments/assets/08ac6308-8adf-41de-9fd8-2fa4dd57b74f" />
+
+#### RDS
+<img width="1937" height="1053" alt="rds-database" src="https://github.com/user-attachments/assets/adbc6222-3c7a-490d-a59f-feecb71a0d8c" />
+<img width="1914" height="1383" alt="rds-security" src="https://github.com/user-attachments/assets/1698c693-d273-4c5a-ab5f-2e08228ba627" />
+
+#### IAM Role
+<img width="1914" height="1161" alt="iam-role" src="https://github.com/user-attachments/assets/dcc44bd5-e13f-4eca-bc4c-a246b1c50f87" />
+<img width="1914" height="1234" alt="iam-policy" src="https://github.com/user-attachments/assets/143b0121-ace6-4914-8181-5fcf63840092" />
+
+#### S3
+<img width="1914" height="1147" alt="s3-properties" src="https://github.com/user-attachments/assets/71ff56a6-73af-43fc-9aab-f0fe344e1276" />
+<img width="1914" height="1223" alt="s3-permissions" src="https://github.com/user-attachments/assets/ee4c0a5c-3a3f-46e8-9a7d-47f2e37a8759" />
+
+
+### 2.2 API Access
+
+* Public IP: `http://43.200.65.248:8080/`
+
+#### Health Check API
+
+* `curl -i http://43.200.65.248:8080/actuator/health`
+  
+<img width="440" height="176" alt="health-check" src="https://github.com/user-attachments/assets/33d8d314-89e7-4040-a7b3-fa15fb63a686" />
+
+#### Signup
+
+<img width="428" height="175" alt="post_signup" src="https://github.com/user-attachments/assets/c562bc00-7789-4ec1-839e-24e5da456190" />
+
+#### Signin
+
+<img width="416" height="144" alt="post_login" src="https://github.com/user-attachments/assets/9d7d8de0-5079-4860-b89c-46c6bc6b0cf4" />
+
+#### Post Todos (bearer token 필요)
+
+<img width="405" height="290" alt="post_todo" src="https://github.com/user-attachments/assets/1488689b-8da4-4545-a4ae-109b2340d194" />
+
+#### 프로필 이미지 관리 (bearer token 필요)
+
 
 
 ---
@@ -284,6 +370,12 @@
 ### 3.1 `src/main/resources/application.yml` (예시)
 
 ```yaml
+app:
+  s3:
+    bucket: [S3-bucket-name]
+    base-folder: [S3-folder-name]
+    presign-ttl-seconds: 600
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/plus
@@ -319,11 +411,43 @@ jwt:
     key: [your-jwt-key]
 ```
 
+### 3.2 `src/test/resources/application-bulk.yml` (예시)
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true
+    username: [your-username]
+    password: [your-password]
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+        jdbc:
+          batch_size: 0
+  sql:
+    init:
+      mode: never
+
+bulk:
+  seed:
+    total: 5000000
+
+jwt:
+  secret:
+    key: [your-jwt-key]
+```
+
 ---
 
 ## 4. 트러블 슈팅
 
-#### Level 0.
+#### 🔵 Level 0.
 
 ```jsx
 Could not resolve placeholder 'jwt.secret.key' in value "${jwt.secret.key}"
@@ -332,7 +456,7 @@ Could not resolve placeholder 'jwt.secret.key' in value "${jwt.secret.key}"
 - application.yml 생성
 - DB 연결 설정
 
-#### Level 1.
+#### 🔵 Level 1.
 
 ```jsx
 Connection is read-only. Queries leading to data modification are not allowed
@@ -341,7 +465,7 @@ Connection is read-only. Queries leading to data modification are not allowed
 - 원인: Todo Service 전체에 `@Transactional(readOnly = true)` 작성되어 있음
 - 해결: 각 메서드마다 분리하고, Save 메서드에는 `@Transactional`을 붙임
 
-#### Level 2.
+#### 🔵 Level 2.
 
 User에 Nickname 필드 추가 필요
 
@@ -355,7 +479,7 @@ User에 Nickname 필드 추가 필요
     - JwtFilter에 nickname 세팅 부분 추가
     - AuthUserArgumentResolver에 nickname 받아오는 부분 추가
 
-#### Level 3.
+#### 🔵 Level 3.
 
 weather 검색 기능 추가
 
@@ -389,7 +513,7 @@ LocalDateTime endTimeExclusive = end==null ? null : end.plusDays(1).atStartOfDay
 	Page<Todo> findByConditionOrderByModifiedAtDesc(@Param("weather") String weather, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, Pageable pageable);
 ```
 
-#### Level 4.
+#### 🔵 Level 4.
 
 ```jsx
 mockMvc.perform(get("/todos/{todoId}", todoId))
@@ -402,7 +526,7 @@ mockMvc.perform(get("/todos/{todoId}", todoId))
 - 기존 테스트 코드 expected status : 200 OK
 - 테스트 코드 의도 status: 400 Bad Request
 
-#### Level 5.
+#### 🔵 Level 5.
 
 ```jsx
 //수정 전
@@ -414,7 +538,7 @@ mockMvc.perform(get("/todos/{todoId}", todoId))
 
 - changeUserRole 메서드 실행 전 동작으로 변경
 
-#### Level 6.
+#### 🟢 Level 6.
 
 Cascade
 
@@ -444,7 +568,7 @@ private List<Manager> managers = new ArrayList<>();
 
 - 부모 저장 시 자식 같이 저장 → `CascadeType.PERSIST`
 
-#### Level 7.
+#### 🟢 Level 7.
 
 N+1 문제 발생
 
@@ -454,7 +578,7 @@ N+1 문제 발생
 
 - JOIN → JOIN FETCH 변경
 
-#### Level 8.
+#### 🟢 Level 8.
 
 QueryDSL
 
@@ -532,14 +656,14 @@ QueryDSL
         ```
 
 
-#### Level 9.
+#### 🟢 Level 9.
 
 - Filter + ArgumentResolver 관련 파일 삭제
 - Spring Security 적용 (JwtAuthenticationFilter, JwtAuthenticationToken, SecurityConfig)
 - UserRole 수정 (ROLE_ 추가한 Authority 생성)
 - Controller 적용 부분 수정 (@Auth → @AuthenticationPrincipal)
 
-#### Level 10.
+#### 🟡 Level 10.
 
 - TodoSearchResponse Dto 추가
 
@@ -627,14 +751,46 @@ QueryDSL
 - Dto Projection을 적용하기 때문에 N+1 문제 발생하지 않음
 - 동적 조건 따로 분리하여 가독성 & 재사용성 높임
 
-#### Level 11.
+#### 🟡 Level 11.
 
 - Log 엔티티 및 레포지토리 생성
 - saveManager 메서드 안에서 logSaveManager 메서드 실행
-- propagation 속성 REQUIRES_NEW 적용하여 saveManager 오류 발생 시에도 로그 저장 롤백 제외
+- propagation 속성 `REQUIRES_NEW` 적용하여 saveManager 오류 발생 시에도 로그 저장 롤백 제외
+
+#### 🟡 Level 12.
+
+- AWS 배포 (EC2, RDS, S3)
+
+#### 🟡 Level 13.
+
+- 대용량 데이터 처리 성능 개선
+	- User 데이터 500만 건 Bulk insert 테스트 작성
+	- 닉네임 생성은 생성 인덱스 기반 Base64 인코딩 활용
+	- 닉네임 일치 유저 목록 조회 기능 추가 및 테스트
+
+	**실험**
+  
+	* 각 5회 반복
+	1. 기존 조회 (index 없음)
+	2. nickname index 적용
+	3. (nickname, id) index 적용 (커버링 인덱스)
 
 
-### 그 외 문제 해결
+	**실험 결과**
+
+	<img width="679" height="480" alt="image" src="https://github.com/user-attachments/assets/40dd75fb-5788-4cc3-b9e3-81f3762efb16" />
+
+	| Scenario              | Runs | Mean (ms) | Median (ms) | SD (ms) | Min | Max |
+	|---|---:|---:|---:|---:|---:|---:|
+	| No Index             | 5 | 5805.2 | 5900.0 | 1255.9 | 4233 | 7144 |
+	| Nickname Index       | 5 | 3348.6 | 3471.0 | 750.7  | 2315 | 4244 |
+	| **(Nickname, Id) Index** | 5 | **2594.0** | 2419.0 | 525.5  | 1912 | 3135 |
+
+
+	3. (Nickname, Id) 커버링 인덱스를 사용했을 때 조회 속도가 가장 빠른 것을 확인할 수 있음
+
+
+### 🟣 그 외 문제 해결
 
 * UserRole 관련 오류
   * authorities 설정에 userRole.name() 사용 (USER, ADMIN)
