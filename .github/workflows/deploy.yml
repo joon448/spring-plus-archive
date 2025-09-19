@@ -18,15 +18,23 @@ jobs:
       - name: Build jar
         run: ./gradlew clean bootJar -x test
 
-      - name: Upload jar to EC2 (releases/)
+      - name: Rename jar with commit sha + date
+        run: |
+          FILE=$(ls build/libs/*.jar | head -n1)
+          SHA=${GITHUB_SHA::8}
+          TS=$(date -u +'%Y%m%d-%H%M%S')
+          NEW="app-${TS}-${SHA}.jar"
+          mv "$FILE" "build/libs/$NEW"
+          echo "ARTIFACT=$NEW" >> $GITHUB_ENV
+
+      - name: Upload jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*.jar"
+          source: "build/libs/${{ env.ARTIFACT }}"
           target: "/opt/plus/releases/"
-          strip_components: 2
 
       - name: Switch symlink & restart service
         uses: appleboy/ssh-action@v1.2.0
@@ -36,9 +44,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            ls -t /opt/plus/releases/*.jar | head -n 1 | while read JAR; do
-              echo "Latest: $JAR"
-              ln -sfn "$JAR" /opt/plus/app.jar
-            done
+            JAR="/opt/plus/releases/${{ env.ARTIFACT }}"
+            echo "Switch to $JAR"
+            ln -sfn "$JAR" /opt/plus/app.jar
             sudo systemctl restart todo-management.service
             sudo systemctl status todo-management.service --no-pager --full || true
