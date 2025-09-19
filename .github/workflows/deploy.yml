@@ -27,6 +27,22 @@ jobs:
           mv "$FILE" "build/libs/$NEW"
           echo "ARTIFACT=$NEW" >> $GITHUB_ENV
 
+      - name: Detect runner public IP
+        id: ip
+        run: echo "MY_IP=$(curl -s https://checkip.amazonaws.com)/32" >> $GITHUB_OUTPUT
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Open SSH for this runner
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id sg-0893adff359fd7994 \
+            --ip-permissions "IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp='${{ steps.ip.outputs.MY_IP }}',Description='gha-temporary'}]"
+
       - name: Upload jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -35,6 +51,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/${{ env.ARTIFACT }}"
           target: "/opt/plus/releases/"
+          strip_components: 2
 
       - name: Switch symlink & restart service
         uses: appleboy/ssh-action@v1.2.0
@@ -49,3 +66,10 @@ jobs:
             ln -sfn "$JAR" /opt/plus/app.jar
             sudo systemctl restart todo-management.service
             sudo systemctl status todo-management.service --no-pager --full || true
+
+      - name: Close SSH rule
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id sg-0893adff359fd7994 \
+            --ip-permissions "IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp='${{ steps.ip.outputs.MY_IP }}'}]"
