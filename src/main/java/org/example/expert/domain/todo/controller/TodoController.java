@@ -48,7 +48,7 @@ public class TodoController {
         return ResponseEntity.ok(todoService.getTodo(todoId));
     }
 
-    @GetMapping("/search/todos")
+    @GetMapping("/todos/search")
     public ResponseEntity<Page<TodoSearchResponse>> searchTodos(
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int size,

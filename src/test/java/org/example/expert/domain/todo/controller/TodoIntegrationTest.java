@@ -133,7 +133,7 @@ public class TodoIntegrationTest extends IntegrationTestSupport {
 		Todo todo  = saveTodo("title", "contents", "Sunny", user);
 
 		// when & then
-		mockMvc.perform(get("/search/todos")
+		mockMvc.perform(get("/todos/search")
 				.with(addHeatherBearerToken(user)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content").isArray())
@@ -155,7 +155,7 @@ public class TodoIntegrationTest extends IntegrationTestSupport {
 		Todo todo2  = saveTodo("title2", "contents2", "Cloudy", user);
 
 		// when & then
-		mockMvc.perform(get("/search/todos")
+		mockMvc.perform(get("/todos/search")
 				.param("page", "1")
 				.param("size", "10")
 				.param("title", "title") // 'title' like로 검색
