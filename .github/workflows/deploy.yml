@@ -26,6 +26,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/*.jar"
           target: "/opt/plus/releases/"
+          strip_components: 2
 
       - name: Switch symlink & restart service
         uses: appleboy/ssh-action@v1.2.0
