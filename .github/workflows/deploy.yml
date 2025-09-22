@@ -56,15 +56,34 @@ jobs:
 
       - name: Register new task definition with new image
         run: |
+          # 1) 읽기전용/미지원 필드 제거 + 이미지 교체
           NEW=$(jq --arg IMG "$IMAGE_URI" '
-            .containerDefinitions |=
-              (map(if .name=="app" then .image=$IMG else . end))
+            .
+            # 등록 불가(읽기전용) 필드 제거
+            | del(
+                .taskDefinitionArn,
+                .revision,
+                .status,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy,
+                .deregisteredAt
+              )
+            # 컨테이너 중 이름이 "app"인 항목의 image만 교체
+            | .containerDefinitions |= (map(
+                if .name == "app" then .image = $IMG else . end
+              ))
           ' taskdef.json)
+
           echo "$NEW" > new-taskdef.json
 
+          # 2) 새 태스크 정의 등록
           ARN=$(aws ecs register-task-definition \
             --cli-input-json file://new-taskdef.json \
-            --query taskDefinition.taskDefinitionArn --output text)
+            --query taskDefinition.taskDefinitionArn \
+            --output text)
+
           echo "TASK_DEF_ARN=$ARN" >> $GITHUB_ENV
           echo "Registered: $ARN"
 
